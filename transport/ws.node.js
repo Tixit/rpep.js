@@ -201,13 +201,7 @@ function attachMessageHandler(wsConnection, onMessageHandler) {
 function attachErrorHandler(wsConnection, onErrorHandler) {
     if(onErrorHandler) {
         wsConnection.on('error', function(e) {
-            if(e instanceof Event) {
-                var error = new Error('Websocket error event (probably means the connection couldn\'t be made or has been closed)')
-                error.event = e
-                onErrorHandler(error)
-            } else {
-                onErrorHandler(e)
-            }
+            onErrorHandler(e)
         })
     }
 }

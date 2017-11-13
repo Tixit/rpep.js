@@ -755,6 +755,7 @@ var RpepConnection = proto(EventEmitter, function() {
                     }
 
                     delete that.commandState[message[0]]
+                    checkCleanClose(that)
                 } else {
                     throw new Error("Shouldn't get here "+JSON.stringify(info))
                 }

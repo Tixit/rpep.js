@@ -36,24 +36,24 @@ Unit.test('All node tests', function(t) {
         }
     }
 
-    // createTest(this, 'rpep with test serialization and transport',
-    //            testSerialization, createTestTransportGetter(), createSerializationTestOptions(testSerialization))
-    //
-    // this.test('rpep with different serializations', function() {
-    //     createTest(this, 'rpep with json',
-    //                json, createTestTransportGetter(), createSerializationTestOptions(json))
-    //     createTest(this, 'rpep with bson',
-    //                bson, createTestTransportGetter(), createSerializationTestOptions(bson))
-    //     createTest(this, 'rpep with msgpack',
-    //                msgpack, createTestTransportGetter(), createSerializationTestOptions(msgpack))
-    // })
+    createTest(this, 'rpep with test serialization and transport',
+               testSerialization, createTestTransportGetter(), createSerializationTestOptions(testSerialization))
+
+    this.test('rpep with different serializations', function() {
+        createTest(this, 'rpep with json',
+                   json, createTestTransportGetter(), createSerializationTestOptions(json))
+        createTest(this, 'rpep with bson',
+                   bson, createTestTransportGetter(), createSerializationTestOptions(bson))
+        createTest(this, 'rpep with msgpack',
+                   msgpack, createTestTransportGetter(), createSerializationTestOptions(msgpack))
+    })
 
     this.test("rpep with different transports", function() {
-        createTest(this, 'rpep with websockets for node', testSerialization, wsNode, {
+        createTest(this, 'rpep with websockets for node', msgpack, wsNode, {
             clientErrorOptions: ['localhost', 6080],
             clientError: "Connection couldn\'t be opened: \nconnectionFailure - Error: connect ECONNREFUSED 127.0.0.1:6080",
             listenerErrorOptions: ['notAValidPort'], listenerError: "listen EACCES notAValidPort",
-            rawMessages: createRawMessageTests(testSerialization),
+            rawMessages: createRawMessageTests(msgpack),
             nextListenerOptions: function(lastOptions) {
                 if(lastOptions === undefined) return [6081]
                 return [lastOptions[0]+1]
