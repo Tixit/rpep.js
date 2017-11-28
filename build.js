@@ -12,10 +12,6 @@ var name = 'rpep'
 var prod = build(name, false, {output: {path:buildDirectory}, header: copywrite, name:name, minify:true})
 var dev = build(name, false, {output: {path:buildDirectory, name:name+'-dev.umd.js'}, header: copywrite, name:name, minify:false})
 
-// tests
-name = 'test.browser'
-var test = build('./test/'+name, false, {output: {path:generatedTestDirectory, name:name+'.umd.js'}, header: copywrite, name:name, minify:false})
-
 exports.done = new Promise(function(resolve) {
     var n = 0, bundles = [test]//,prod,dev]
 

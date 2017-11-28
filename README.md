@@ -50,7 +50,7 @@ Install
 =======
 
 ```
-npm install rpep
+yarn install rpep
 ```
 
 Usage
@@ -191,6 +191,10 @@ A serialization is an object describing how to serialize and deserialize message
 
 #### Known rpep.js serializations
 
+* Msgpack - https://github.com/Tixit/rpep-msgpack
+* BSON - https://github.com/Tixit/rpep-bson
+* JSON - `rpep/serializations/json`
+
 ## Transports
 
 A transport is an object describing how to send and receive messages. The object has the following properties:
@@ -231,6 +235,8 @@ This is a type of object returned by `transport.listen` that allows `rpep` to in
 
 #### Known rpep.js transports
 
+* Websockets - https://github.com/Tixit/rpep-websockets
+
 Known issues
 ============
 
@@ -263,8 +269,8 @@ How to submit pull requests:
 
 Change Log
 =========
-* 2.0.1 - Adding peer error event, creating lots of documentation, implementing tls for the websocket transport, and adding more tests for node.js and the browser
-* 2.0.0 - Reimplement based on private repository (owned by me)
+* 2.0.0 - Adding peer error event, creating lots of documentation, implementing tls for the websocket transport, and adding more tests for node.js and the browser
+* 1.9.9 - Reimplement based on private repository (owned by me)
 
 License
 =======

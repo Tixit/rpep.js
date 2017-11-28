@@ -16,12 +16,9 @@
     "stream"
   ],
   "dependencies": {
-    "bson": "*",
     "eventemitter2": "*",
-    "msgpack-lite": "*",
     "pako": "*",
-    "proto": "*",
-    "websocket": "*"
+    "proto": "*"
   },
   "devDependencies": {
     "pem": "^1.12.3",
@@ -38,7 +35,6 @@
     "build-modules": "2",
     "deadunit": "*",
     "nodent-loader": "*",
-    "opn": "*",
     "why-is-node-running": "^1.2.3"
   },
   "repository": {
