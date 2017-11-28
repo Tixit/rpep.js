@@ -27,6 +27,7 @@ var PeerError = proto(Error, function() {
 
 // An instance of RpepCore can emit the following events:
     // 'close' - Fired once the listening server has been closed
+    // 'error' - Fired if there was an error related to listening
 module.exports = proto(EventEmitter, function() {
 
     // static properties
@@ -105,8 +106,7 @@ module.exports = proto(EventEmitter, function() {
 
         var that = this
         return new Promise(function(resolve, reject) {
-            var connectionInfo = that.transport.connect.apply(that.transport.connect, args.concat([that.options]))
-            var connection = that.transport.connection.call(that.transport.connection, connectionInfo)
+            var connection = that.transport.connect.apply(that.transport.connect, args.concat([that.options]))
 
             var onOpenCalled = false, errors = []
             connection.onOpen(function() {
@@ -148,26 +148,29 @@ module.exports = proto(EventEmitter, function() {
             that.listener = that.transport.listen.apply(that.transport, transportListenArguments.concat([that.options, function(request) {
                 requestHandler({
                     accept: function() {
-                        var connectionInfo = request.accept()
-                        var connection = that.transport.connection.call(that.transport.connection, connectionInfo)
+                        var connection = request.accept.apply(that,arguments)
                         return RpepConnection(that, connection, {isServer:true})
                     },
                     reject: function() {
-                        request.reject()
+                        request.reject.apply(that, arguments)
                     },
                     rawRequest: request
                 })
             }]))
 
+            var listening = false
             that.listener.onListening(function() {
+                listening = true
                 resolve()
             })
             that.listener.onError(function(e) {
-                reject(e)
+                that.emit('error',e)
             })
             that.listener.onClose(function(e) {
                 that.listener = undefined
                 that.emit('close')
+                if(listening === false)
+                    reject()
             })
         })
     }
@@ -281,6 +284,10 @@ var RpepConnection = proto(EventEmitter, function() {
         this.closing = false
         this.sessionData = {}
         this.commandState = {}
+
+        Object.defineProperty(this, 'rawConnection', { get: function() {
+            return this.connection.rawConnection
+        }})
         
         if(this.server)
             this.nextId = 0

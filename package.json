@@ -1,35 +1,48 @@
-{"name":"rpep",
- "version":"1.0.0",
- "main":"rpep.js",
- "description": "A javascript implementation of the RPEP protocol https://github.com/Tixit/RPEP",
- "keywords": [
-    "rpc", "event", "protocol", "communication", "messaging", "zeromq", "zmq", "0mq", "socket", "stream"
- ],
- "dependencies":{
-   "proto":"*",
-   "eventemitter2":"*",
-   "bson":"*",
-   "msgpack-lite":"*",
-   "websocket":"*",
-   "pako":"*"
- },
- "devDependencies": {
-    "build-modules":"2",
-      "babel-core": "*",
-      "babel-loader": ">=7.1",
-      "nodent-loader":"*",
-      "babel-preset-env": "*",
-      "babel-preset-es2015": "*",
-      "babel-preset-stage-0": "*",
-      "babel-plugin-async-to-promises": "*",
-      "babel-plugin-transform-regenerator": "*",
-      "babel-plugin-transform-decorators-legacy":"*",
-      "babel-plugin-syntax-async-functions":"*",
-      "babel-plugin-transform-async-to-generator":"*",
-    "deadunit":"*"
- },
- "repository": {
-   "type": "git",
-   "url": "git://github.com/Tixit/rpep.js"
- }
+{
+  "name": "rpep",
+  "version": "2.0.0",
+  "main": "rpep.js",
+  "description": "A javascript implementation of the RPEP protocol https://github.com/Tixit/RPEP",
+  "keywords": [
+    "rpc",
+    "event",
+    "protocol",
+    "communication",
+    "messaging",
+    "zeromq",
+    "zmq",
+    "0mq",
+    "socket",
+    "stream"
+  ],
+  "dependencies": {
+    "bson": "*",
+    "eventemitter2": "*",
+    "msgpack-lite": "*",
+    "pako": "*",
+    "proto": "*",
+    "websocket": "*"
+  },
+  "devDependencies": {
+    "pem": "^1.12.3",
+    "babel-core": "*",
+    "babel-loader": ">=7.1",
+    "babel-plugin-async-to-promises": "*",
+    "babel-plugin-syntax-async-functions": "*",
+    "babel-plugin-transform-async-to-generator": "*",
+    "babel-plugin-transform-decorators-legacy": "*",
+    "babel-plugin-transform-regenerator": "*",
+    "babel-preset-env": "*",
+    "babel-preset-es2015": "*",
+    "babel-preset-stage-0": "*",
+    "build-modules": "2",
+    "deadunit": "*",
+    "nodent-loader": "*",
+    "opn": "*",
+    "why-is-node-running": "^1.2.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Tixit/rpep.js"
+  }
 }

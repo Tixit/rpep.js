@@ -1,15 +1,23 @@
-module.exports = function(transportOptions, rpepOptions) {
+module.exports = function(transportOptions) {
     return {
-        connect: function(host, port) {
-            if(transportOptions.secure) {
-                var protocol = 'wss'
+        // connectionOptions
+            // binaryType - The binaryType property of a websocket connection
+            // protocol - (Default: 'ws') Either 'wss' or 'ws'
+        connect: function(host, port/*, [connectionOptions,] rpepOptions*/) {
+            if(arguments.length <= 3) {
+                var rpepOptions = arguments[2]
             } else {
-                var protocol = 'ws'
+                var connectionOptions = arguments[2]
+                var rpepOptions = arguments[3]
             }
 
-            return new WebSocket(protocol+'://'+host+':'+port)
-        },
-        connection: function(wsConnection) {
+            if(!connectionOptions) connectionOptions = {}
+            if(!connectionOptions.protocol) connectionOptions.protocol = 'ws'
+
+            var wsConnection = new WebSocket(connectionOptions.protocol+'://'+host+':'+port)
+            if(connectionOptions.binaryType)
+                wsConnection.binaryType = connectionOptions.binaryType
+
             return {
                 send: function(m) {
                     wsConnection.send(m)
@@ -38,7 +46,8 @@ module.exports = function(transportOptions, rpepOptions) {
                             cb(e)
                         }
                     }
-                }
+                },
+                rawConnection: wsConnection
             }
         }
     }

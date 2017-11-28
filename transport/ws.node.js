@@ -6,38 +6,68 @@ var WebSocketServer = require('websocket').server
 var WebSocketClient = require('websocket').client
 
 
-// transportOptions contains options for theturtle32/WebSocket-Node
-    // most of the options can be found here: https://github.com/theturtle32/WebSocket-Node/blob/master/docs/WebSocketServer.md#server-config-options
-    // Also, the tlsOptions option from here: https://github.com/theturtle32/WebSocket-Node/blob/master/docs/WebSocketClient.md
-    // And the undocumented `secure` option - (Default:false) if true, connect will use the wss protocol (otherwise will use ws). The tlsOptions are ignored unless `secure` is true.
+// transportOptions contains:
+    // options for https://github.com/theturtle32/WebSocket-Node/blob/master/docs/WebSocketServer.md
+    // Also, the additional options from here: https://github.com/theturtle32/WebSocket-Node/blob/master/docs/WebSocketClient.md (should just be `tlsOptions` and `webSocketVersion`)
 module.exports = function(transportOptions) {
-    if(!transportOptions)                          transportOptions = {secure:false}
-    if(transportOptions.secure === undefined)      transportOptions.secure = false
-    if(transportOptions.wsProtocol === undefined)  transportOptions.wsProtocol = ''
-    if(transportOptions.httpHandler === undefined) transportOptions.httpHandler = function(request, response) {}
-
-    if(transportOptions.httpServer === undefined) {
-        if(transportOptions.secure) {
-            transportOptions.httpServer = https.createServer(transportOptions.secureOptions, transportOptions.httpHandler)
-        } else {
-            transportOptions.httpServer = http.createServer(transportOptions.httpHandler)
-        }
-    }
-
-    transportOptions.autoAcceptConnections = false // unfortunately, I can't figure out how to actually interact with the connection without doing it this way
-
+    if(!transportOptions) transportOptions = {}
+    
     return {
-        connect: function(host, port, rpepOptions) {
-            if(transportOptions.secure) var protocol = 'wss'
-            else                        var protocol = 'ws'
+        // connectionOptions - See here for more info: https://github.com/theturtle32/WebSocket-Node/blob/master/docs/WebSocketClient.md
+            // protocol - (Default: 'ws') Either 'wss' or 'ws'
+            // wsProtocols - A string or array of strings representing the websocket-protocols to request
+            // origin
+            // headers
+            // requestOptions
+        connect: function(host, port/*, [connectionOptions,] rpepOptions*/) {
+            if(arguments.length <= 3) {
+                var rpepOptions = arguments[2]
+            } else {
+                var connectionOptions = arguments[2]
+                var rpepOptions = arguments[3]
+            }
+
+            if(connectionOptions === undefined) connectionOptions = {}
+            var co = connectionOptions
+
+            if(co.protocol === undefined) co.protocol = 'ws'
+            if(co.wsProtocol === undefined) co.wsProtocol = ''
 
             var client = new WebSocketClient(transportOptions)
-            client.connect(protocol+'://'+host+':'+port, transportOptions.wsProtocol)  // can wsProtocol be undefined?
+            client.connect(co.protocol+'://'+host+':'+port, co.wsProtocol, co.origin, co.headers, co.requestOptions)
 
-            return client
+            return ClientConnectionObject(client)
         },
 
-        listen: function(port, rpepOptions, requestHandler) {
+        // listenerOptions
+            // secure - (Default:false) If true and `httpServer` is undefined, will create an https server
+            // secureOptions - The options to pass into `https.createServer` if `secure` is true
+            // httpServer - If this is defined, uses this server instead of creating a new one
+            // httpHandler(request) - If this is defined, it is a callback that's called when a normal http request comes through.
+        listen: function(port/*,[listenerOptions,] rpepOptions, requestHandler*/) {
+            if(arguments.length <= 3) {
+                var rpepOptions = arguments[1]
+                var requestHandler = arguments[2]
+            } else {
+                var listenerOptions = arguments[1]
+                var rpepOptions = arguments[2]
+                var requestHandler = arguments[3]
+            }
+
+            if(listenerOptions === undefined) listenerOptions = {}
+            var LO = listenerOptions
+
+            if(LO.wsProtocol === undefined) LO.wsProtocol = ''
+
+            if(LO.httpServer === undefined) {
+                if(LO.secure) {
+                    LO.httpServer = https.createServer(LO.secureOptions, LO.httpHandler)
+                } else {
+                    LO.httpServer = http.createServer(LO.httpHandler)
+                }
+            }
+
+            transportOptions.httpServer = LO.httpServer
             var wsServer = new WebSocketServer(transportOptions)
             wsServer.on('request', function(request) {
                 try {
@@ -47,15 +77,17 @@ module.exports = function(transportOptions) {
                         // remoteAddress: request.remoteAddress,
                         // origin: request.origin,
 
-                        accept: function() {
+                        accept: function(protocol) {
                             // a websocket connection: https://github.com/theturtle32/WebSocket-Node/wiki/Documentation
-                            var connection = request.accept(transportOptions.wsProtocol, request.origin)
-                            return connection
+                            var connection = request.accept(protocol, request.origin)
+                            return ServerConnectionObject(connection)
                         },
 
                         // xWebSocketRejectReason is a message to send back to the client in the form of an "X-WebSocket-Reject-Reason" header
-                        reject: function() {
-                            var httpStatus = 404, xWebSocketRejectReason="Websocket connection was rejected by the application."
+                        reject: function(httpStatus, xWebSocketRejectReason) {
+                            if(xWebSocketRejectReason === undefined) xWebSocketRejectReason = "Websocket connection was rejected by the application."
+                            if(httpStatus === undefined) httpStatus = 404
+                            
                             request.reject(httpStatus, xWebSocketRejectReason)
                         }
                     })
@@ -66,35 +98,25 @@ module.exports = function(transportOptions) {
                 }
             })
 
-            // setTimeout(function() { // ensure asynchronicity
-                transportOptions.httpServer.listen(port)
-            // })
+            listenerOptions.httpServer.listen(port)
 
             var onCloseHandler, errorHandler;
             return {
                 close: function() {
                     wsServer.shutDown()
-                    transportOptions.httpServer.close()
+                    listenerOptions.httpServer.close()
                     if(onCloseHandler) onCloseHandler()
                 },
                 onListening: function(cb) {
-                    transportOptions.httpServer.on('listening', cb)
+                    listenerOptions.httpServer.on('listening', cb)
                 },
                 onClose: function(cb) {
                     onCloseHandler = cb
                 },
                 onError: function(cb) {
                     errorHandler = cb
-                    transportOptions.httpServer.on('error', cb)
+                    listenerOptions.httpServer.on('error', cb)
                 }
-            }
-        },
-
-        connection: function(object) {
-            if(object instanceof WebSocketClient) { // client
-                return ClientConnectionObject(object)
-            } else { // server
-                return ServerConnectionObject(object)
             }
         }
     }
@@ -148,6 +170,9 @@ var ClientConnectionObject = function(client) {
         },
         onError: function(cb) {
             onErrorHandler = cb
+        },
+        get rawConnection() {
+            return wsConnection
         }
     }
 }
@@ -174,6 +199,9 @@ var ServerConnectionObject = function(wsConnection) {
         },
         onError: function(cb) {
             attachErrorHandler(wsConnection, cb)
+        },
+        get rawConnection() {
+            return wsConnection
         }
     }
 }

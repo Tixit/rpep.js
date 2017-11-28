@@ -9,13 +9,28 @@ var copywrite = '/* Copyright (c) 2013 Billy Tetrud - Free to use for any purpos
 
 console.log('building and minifying...')
 var name = 'rpep'
-build(name, false, {output: {path:buildDirectory}, header: copywrite, name:name, minify:true})
-build(name, true, {output: {path:buildDirectory, name:name+'-dev.umd.js'}, header: copywrite, name:name, minify:false})
+var prod = build(name, false, {output: {path:buildDirectory}, header: copywrite, name:name, minify:true})
+var dev = build(name, false, {output: {path:buildDirectory, name:name+'-dev.umd.js'}, header: copywrite, name:name, minify:false})
 
 // tests
 name = 'test.browser'
-build('./test/'+name, true, {output: {path:generatedTestDirectory, name:name+'.umd.js'}, header: copywrite, name:name, minify:false})
+var test = build('./test/'+name, false, {output: {path:generatedTestDirectory, name:name+'.umd.js'}, header: copywrite, name:name, minify:false})
 
+exports.done = new Promise(function(resolve) {
+    var n = 0, bundles = [test]//,prod,dev]
+
+    var check = function() {
+        if(n === bundles.length) resolve()
+    }
+
+    bundles.forEach(function(buildRun) {
+        buildRun.on('done', function() {
+            n++
+            check()
+        })
+
+    })
+})
 
 function build(relativeModulePath, watch, options) {
     var emitter = buildModule(path.join(__dirname, '.', relativeModulePath), {
@@ -47,4 +62,6 @@ function build(relativeModulePath, watch, options) {
     emitter.on('warning', function(w) {
        console.log(w)
     })
+
+    return emitter
 }

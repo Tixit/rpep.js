@@ -8,7 +8,7 @@ module.exports = proto(function() {
         this._onEmitHandler = onEmitHandler
     }
 
-    this.emit = function(event, data) {
+    this.emit = function(event/*, arguments...*/) {
         if(this.ended) throw new Error("Duplex Stream has already been ended.")
         this._onEmitHandler.apply(this._onEmitHandler, arguments)
     }
@@ -23,10 +23,5 @@ module.exports = proto(function() {
     }
     this.offAny = function(handler) {
         this._external.offAny(handler)
-    }
-
-    this.end = function() {
-        this.emit('end')
-        this.ended = true
     }
 })
