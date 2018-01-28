@@ -180,7 +180,7 @@ A `DuplexEventEmitter` is a special event emitter used to both listen for events
 * `handler(event, eventArguments...)` - A callback that's called when an `event` is received on this stream.
 
 **`stream.off(event, handler)`** - Removes a handler for a particular event.  
-**`stream.offAny(handler)` - Removes an `offAny` handler.  
+**`stream.offAny(handler)`** - Removes an `offAny` handler.  
 
 ## Serializations
 
