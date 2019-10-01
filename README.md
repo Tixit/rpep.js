@@ -9,8 +9,8 @@ Example
 
 ```javascript
 var rpep = require("rpep")
-var websockets = require("rpep/transport/ws.node")
-var msgpack = require("rpep/serialization/msgpack")
+var websockets = require("rpep-websockets")
+var msgpack = require("rpep-msgpack")
 
 // server
 
