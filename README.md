@@ -9,7 +9,7 @@ Example
 
 ```javascript
 var rpep = require("rpep")
-var websockets = require("rpep-websockets")
+var websockets = require("rpep-websockets/ws.node") // For node.js
 var msgpack = require("rpep-msgpack")
 
 // server
