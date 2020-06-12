@@ -32,7 +32,7 @@ server.listen(80, function(request) {
 
 // client (usually on a different machine ; )
 
-var client = rpep(websockets, msgpack)
+var client = rpep(websockets(), msgpack)
 r.connect('yourhost.me', 80).then(function(conn) {
     conn.request('x', 5).then(function(result) {
         console.log(result) // result will be 6
