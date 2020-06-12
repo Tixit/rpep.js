@@ -50,7 +50,7 @@ Install
 =======
 
 ```
-yarn install rpep
+yarn add rpep
 ```
 
 Usage
