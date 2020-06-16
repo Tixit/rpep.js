@@ -709,6 +709,7 @@ var RpepConnection = proto(EventEmitter, function() {
                     }
                     
                     var emitter = that.commandState[id] = createStreamEmiter(that,id)
+                    emitter.command = message[0]
 
                     try {
                         commandInfo.handler.apply(that, [emitter].concat(getArrayData(message[2])).concat([id]))

@@ -269,6 +269,7 @@ How to submit pull requests:
 
 Change Log
 =========
+* 2.0.2 - Fixing bug where server streams didn't correctly display the stream command name in the case of pending streams after connection closure.
 * 2.0.1 - Fixing bug where emitted errors were silently ignored if no listeners were attached to an RPEP connection or server.
 * 2.0.0 - Adding peer error event, creating lots of documentation, implementing tls for the websocket transport, and adding more tests for node.js and the browser
 * 1.9.9 - Reimplement based on private repository (owned by me)
