@@ -73,7 +73,7 @@ rpep; // rpep.umd.js can define rpep globally if you really
 
 Using rpep:
 
-**`var peer = rpep(transport, serialization, rpepOptions)`** - Creates a new rpep Peer.
+**`var server = rpep(transport, serialization, rpepOptions)`** - Creates a new rpep Peer.
 * `transport` - An rpep transport object (described below in the *Transports* section)
 * `serialization` - An rpep serialization object (described below in the *Serializations* section)
 * `rpepOptions` - *(Default: `{}`)* An object with the following properties
@@ -83,40 +83,40 @@ Using rpep:
   * `closeTimeout` - *(Default: `30,000 ms`)* The number of milliseconds to wait for outstanding requests and streams to complete before closing the connection. If the timeout is reached, an 'error' is emitted containing information about what requests and streams were still pending.
   * `sendCommandErrorInfo` - *(Default:`true`)* If `true`, errors will automatically be sent to the other Peer if their command is unparsable, and the first part of the command will be sent with an "invalidMessage" error. If `false`, the error will be ignored (but handleable via `rawHandle` or `preHandle`, depending on the case).
 
-**`peer.PeerError`** - A custom `Error` object that can be thrown from a `respond` handler in order to create an error response (which should throw an error for the peer making the request).
+**`rpep.PeerError`** - A custom `Error` object that can be thrown from a `respond` handler in order to create an error response (which should throw an error for the peer making the request).
 
-**`peer.connect(arguments...)`** - Connects to a Peer. Returns a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) that resolves to an **Rpep Connection Object** if it successfully connects, or resolves to an error if it couldn't connect. The `arguments` are transport-specific.
+**`server.connect(arguments...)`** - Connects to a Peer. Returns a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) that resolves to an **Rpep Connection Object** if it successfully connects, or resolves to an error if it couldn't connect. The `arguments` are transport-specific.
 
-**`peer.listen(arguments..., requestHandler)`** - Listens for connections. Returns a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) that resolves successfully when it begins listening, or resolves to an error if it couldn't begin listening. 
+**`server.listen(arguments..., requestHandler)`** - Listens for connections. Returns a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) that resolves successfully when it begins listening, or resolves to an error if it couldn't begin listening. 
 * The `arguments...` (other than the last one) are transport-specific.
 * `requestHandler(request)` - A function called when a connection request comes through. The `request` can be `accept`ed to complete the connection, or `reject`ed to reject the connection. See the **Rpep Request Object** section for details about `request`.
 
-**`peer.close()`** - Closes a listening websocket server. If the server is already closed, this is a no-op.
+**`server.close()`** - Closes the listener. If the server is already closed, this is a no-op.
 
-**`peer.receive(command, handler)`** - Creates a fire-and-forget receive `handler` for the given `command`.
+**`server.receive(command, handler)`** - Creates a fire-and-forget receive `handler` for the given `command`.
 * `command` - A string command name.
 * `handler(arguments...)` - The function called when a fire-and-forget message is received. The call will have a number of `arguments` depending on how many the message contains. 
 
-**`peer.respond(command, handler)`** - Creates a request-response `handler` for the given `command`.
+**`server.respond(command, handler)`** - Creates a request-response `handler` for the given `command`.
 * `command` - A string command name.
 * `handler(arguments..., ID)` - The function called when a request-response message is received. If a normal value is returned from the handler, that value will be returned as the result to the other Peer. If an `rpep.PeerError` is thrown from the handler, an error will be returned as an error-result to the other Peer. A [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) can also be returned that can be resolved to a normal value or `rpep.PeerError` and those are handled the same way. If an exception that isn't a `PeerError` is thrown from the handler, the request will be responded to with an `"unexpectedPeerError"` error response.
    * `arguments...` - The call will have a number of `arguments` depending on how many the message contains. 
    * `ID` - The last parameter will contain the `ID` number of the message.
 
-**`peer.stream(command, handler)`** - Creates a full-duplex stream `handler` for the given `command`.
+**`server.stream(command, handler)`** - Creates a full-duplex stream `handler` for the given `command`.
 * `command` - A string command name.
 * `handler(stream, arguments..., ID)` - The function called when a stream initialization message is received. 
    * `stream` - A `DuplexEventEmitter` object used to send and receive events. See the **`DuplexEventEmitter`** section for more information.
    * `arguments...` - The call will have a number of `arguments` depending on how many the message contains. 
    * `ID` - The last parameter will contain the `ID` number of the message.
 
-**`peer.default(handler)`** - Creates a `handler` that is called if a well-formed command is received but there isn't a `receive`, `respond`, or `stream` handler set up for that command.
+**`server.default(handler)`** - Creates a `handler` that is called if a well-formed command is received but there isn't a `receive`, `respond`, or `stream` handler set up for that command.
 * `handler(message)` - The callback. The `message` is a parsed rpep message (see [the RPEP protocol](https://github.com/Tixit/RPEP) for defails)
 
-**`peer.preHandle(handler)`** - Creates a `handler` that is called before any `receive`, `respond`, `stream`, or `default` handler is called.
+**`server.preHandle(handler)`** - Creates a `handler` that is called before any `receive`, `respond`, `stream`, or `default` handler is called.
 * `handler(message)` - The callback. The `message` is a parsed rpep message (see [the RPEP protocol](https://github.com/Tixit/RPEP) for defails). If the handler returns "ignore" the message will not trigger any `receive`, `respond`, `stream`, or `default` handler.
 
-**`peer.rawHandle(handler)`** - Creates a `handler` that is called before the message is parsed by the `serialization` (which happens before `preHandle`).
+**`server.rawHandle(handler)`** - Creates a `handler` that is called before the message is parsed by the `serialization` (which happens before `preHandle`).
 * `handler(rawMessage)` - The callback. The `rawMessage` is a unparsed rpep message in whatever format the configured `serialization` dictates. If the handler returns "ignore" the message will not trigger any `receive`, `respond`, `stream`, `default`, or `preHandle` handler.
 
 #### Rpep Connection Object
