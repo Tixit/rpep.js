@@ -9,8 +9,8 @@ Example
 
 ```javascript
 var rpep = require("rpep")
-var websockets = require("rpep/transport/ws.node")
-var msgpack = require("rpep/serialization/msgpack")
+var websockets = require("rpep-websockets/ws.node") // For node.js
+var msgpack = require("rpep-msgpack")
 
 // server
 
@@ -32,7 +32,7 @@ server.listen(80, function(request) {
 
 // client (usually on a different machine ; )
 
-var client = rpep(websockets, msgpack)
+var client = rpep(websockets(), msgpack)
 r.connect('yourhost.me', 80).then(function(conn) {
     conn.request('x', 5).then(function(result) {
         console.log(result) // result will be 6
@@ -50,7 +50,7 @@ Install
 =======
 
 ```
-yarn install rpep
+yarn add rpep
 ```
 
 Usage
@@ -180,7 +180,7 @@ A `DuplexEventEmitter` is a special event emitter used to both listen for events
 * `handler(event, eventArguments...)` - A callback that's called when an `event` is received on this stream.
 
 **`stream.off(event, handler)`** - Removes a handler for a particular event.  
-**`stream.offAny(handler)` - Removes an `offAny` handler.  
+**`stream.offAny(handler)`** - Removes an `offAny` handler.  
 
 ## Serializations
 
