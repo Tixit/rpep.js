@@ -84,6 +84,8 @@ module.exports = proto(EventEmitter, function() {
                 // the first part of the command will be sent with an "invalidMessage" error
             // Otherwise, the error will be ignored (but handleable via rawHandle or preHandle, depending on the case).
     this.init = function(transport, serialization, options) {
+        EventEmitter.call(this) // superclass constructor
+
         if(!options) options = {}
 
         this.transport = transport
@@ -264,6 +266,8 @@ var RpepConnection = proto(EventEmitter, function() {
         // isServer - Should be true if the connection is being creatd by a server, false otherwise
         // onClose - A function that will be called in the onClose event before the 'close' event is emitted
     this.init = function(rpepCoreObject, connectionObject, connectionOptions) {
+        EventEmitter.call(this) // superclass constructor
+
         this.transport = rpepCoreObject.transport
         this.serialization = rpepCoreObject.serialization
         this.commands = rpepCoreObject.commands
