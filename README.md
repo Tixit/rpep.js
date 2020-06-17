@@ -19,6 +19,7 @@ server.respond('x', function(request) {
     return request+1
 })
 server.stream('y', function(emitter) {
+    this.connectionInfo // Will hold "Some object". This can be used to pass connection state between command listeners.
     emitter.emit('hi')
     emitter.on('end', function() {
         emitter.emit("end") // end the stream (but not the connection)
@@ -34,6 +35,7 @@ server.listen(80, function(request) {
 
 var client = rpep(websockets(), msgpack)
 r.connect('yourhost.me', 80).then(function(conn) {
+    conn.connectionInfo = "Some object"
     conn.request('x', 5).then(function(result) {
         console.log(result) // result will be 6
     })
