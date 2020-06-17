@@ -83,7 +83,7 @@ Using rpep:
   * `closeTimeout` - *(Default: `30,000 ms`)* The number of milliseconds to wait for outstanding requests and streams to complete before closing the connection. If the timeout is reached, an 'error' is emitted containing information about what requests and streams were still pending.
   * `sendCommandErrorInfo` - *(Default:`true`)* If `true`, errors will automatically be sent to the other Peer if their command is unparsable, and the first part of the command will be sent with an "invalidMessage" error. If `false`, the error will be ignored (but handleable via `rawHandle` or `preHandle`, depending on the case).
 
-**`peer.PeerError`** - A custom `Error` object that can be thrown from a `respond` handler in order to create an error response (which should throw an error for the peer making the request).
+**`rpep.PeerError`** - A custom `Error` object that can be thrown from a `respond` handler in order to create an error response (which should throw an error for the peer making the request).
 
 **`peer.connect(arguments...)`** - Connects to a Peer. Returns a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) that resolves to an **Rpep Connection Object** if it successfully connects, or resolves to an error if it couldn't connect. The `arguments` are transport-specific.
 
@@ -91,7 +91,7 @@ Using rpep:
 * The `arguments...` (other than the last one) are transport-specific.
 * `requestHandler(request)` - A function called when a connection request comes through. The `request` can be `accept`ed to complete the connection, or `reject`ed to reject the connection. See the **Rpep Request Object** section for details about `request`.
 
-**`peer.close()`** - Closes a listening websocket server. If the server is already closed, this is a no-op.
+**`peer.close()`** - Closes the listener. If the server is already closed, this is a no-op.
 
 **`peer.receive(command, handler)`** - Creates a fire-and-forget receive `handler` for the given `command`.
 * `command` - A string command name.
@@ -193,7 +193,7 @@ A serialization is an object describing how to serialize and deserialize message
 
 * Msgpack - https://github.com/Tixit/rpep-msgpack
 * BSON - https://github.com/Tixit/rpep-bson
-* JSON - `rpep/serializations/json`
+* JSON - `require('rpep/serialization/json')`
 
 ## Transports
 
