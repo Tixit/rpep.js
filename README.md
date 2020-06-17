@@ -193,7 +193,7 @@ A serialization is an object describing how to serialize and deserialize message
 
 * Msgpack - https://github.com/Tixit/rpep-msgpack
 * BSON - https://github.com/Tixit/rpep-bson
-* JSON - `rpep/serializations/json`
+* JSON - `require('rpep/serialization/json')`
 
 ## Transports
 
