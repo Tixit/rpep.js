@@ -1,6 +1,6 @@
 {
   "name": "rpep",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "main": "rpep.js",
   "description": "A javascript implementation of the RPEP protocol https://github.com/Tixit/RPEP",
   "keywords": [
