@@ -642,6 +642,7 @@ var RpepConnection = proto(EventEmitter, function() {
                     }
                 }
 
+                that.emit('error', createUnparsableCommandError(rawMessage))
                 return
             }
 
@@ -773,6 +774,7 @@ var RpepConnection = proto(EventEmitter, function() {
                     throw new Error("Shouldn't get here "+JSON.stringify(info))
                 }
             } else {
+                that.emit('error', createUnparsableCommandError(rawMessage))
                 if(that.sendCommandErrorInfo) {
                     that.fire("error", {message: "invalidMessage", rawMessage: rawMessage.slice(0,200)})
                 } else {
@@ -825,3 +827,9 @@ var RpepDuplexEventEmitter = proto(DuplexEventEmitter, function(superclass) {
         }.bind(this))
     }
 })
+
+function createUnparsableCommandError(rawMessage) {
+    var unparsableCommmandError = new Error("'"+rawMessage+"'")
+    unparsableCommmandError.name = 'UnparsableCommand'
+    return unparsableCommmandError
+}
