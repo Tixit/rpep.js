@@ -9,7 +9,7 @@ var receive = 0
 var respond = 1
 var stream = 2
 
-var defaultMaxId = 9007199254740992 // 2^53]
+var defaultMaxId = 9007199254740992 // 2^53
 var reservedFireCommands = {close:1,idDiscontinuity:1}
 var reservedRequestAndStreamCommands = {close:1,idDiscontinuity:1}
 var reservedRequestAndStreamErrorCommand = {error:1}
@@ -92,6 +92,7 @@ module.exports = proto(EventEmitter, function() {
         this.serialization = serialization
         this.options = options
         if(this.options.maxId === undefined) this.options.maxId = defaultMaxId
+        if(this.options.sendCommandErrorInfo === undefined) this.options.sendCommandErrorInfo = true
 
         this.commands = {}
         // this.defaultHandler
