@@ -124,7 +124,7 @@ module.exports = proto(EventEmitter, function() {
                         message+=': \n'+errors.join('\n')
                     }
 
-                    var e = new Error(message)
+                    var e = err("connectionFailure", message)
                     e.errors = errors
                     reject(e)
                 }
@@ -289,6 +289,7 @@ var RpepConnection = proto(EventEmitter, function() {
         this.closing = false
         this.sessionData = {}
         this.commandState = {}
+        var connectionHasBeenOpened = false
 
         Object.defineProperty(this, 'rawConnection', { get: function() {
             return this.connection.rawConnection
@@ -319,8 +320,12 @@ var RpepConnection = proto(EventEmitter, function() {
         this.connection.onMessage(function(rawMessage) {
             handle(that, rawMessage)
         })
+        this.connection.onOpen(function() {
+            connectionHasBeenOpened = true
+        })
         this.connection.onError(function(e) {
-            that.emit('error', e)
+            if(connectionHasBeenOpened)
+                that.emit('error', e)
         })
     }
 
@@ -583,7 +588,7 @@ var RpepConnection = proto(EventEmitter, function() {
     function send(that, message) {
         var serializedMessage = serialize(that, message)
         if(that.maxSendSize !== undefined && serializedMessage.length > that.maxSendSize) {
-            var e = new Error('maxMessageSizeExceeded')
+            var e = err('maxMessageSizeExceeded')
             e.messageSize = serializedMessage.length
             throw e
         }
@@ -719,7 +724,7 @@ var RpepConnection = proto(EventEmitter, function() {
                         that.emit('error', e) // note that PeerError objects are treated like normal Errors here - to emit an error, you must emit an 'error' event from the passed emitter
                     }
                 } else {
-                    throw new Error("Invalid command type: "+commandInfo.type)
+                    throw err("invalidCommandType", "Invalid command type: "+commandInfo.type)
                 }
 
             } else if(type0 === 'number') {
@@ -736,7 +741,7 @@ var RpepConnection = proto(EventEmitter, function() {
                     } else if(typeof(message[2]) === 'string') {   // message with order number
                         var orderNumber = message[1], event = message[2], eventData = message[3]
                     } else {
-                        throw new Error("Received invalid stream message: couldn't find string event name at position 1 or 2 in the message")
+                        throw err("invalidStreamMessage", "Received invalid stream message: couldn't find string event name at position 1 or 2 in the message")
                     }
 
                     if(event === 'order') {
@@ -829,7 +834,13 @@ var RpepDuplexEventEmitter = proto(DuplexEventEmitter, function(superclass) {
 })
 
 function createUnparsableCommandError(rawMessage) {
-    var unparsableCommmandError = new Error("'"+rawMessage+"'")
+    var unparsableCommmandError = err("unparsableCommand", "'"+rawMessage+"'")
     unparsableCommmandError.name = 'UnparsableCommand'
     return unparsableCommmandError
+}
+
+function err(code, message) {
+    var error = new Error(message || code)
+    error.code = code
+    return error
 }

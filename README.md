@@ -153,6 +153,12 @@ An **Rpep Connection Object** is an [EventEmitter2 object](https://github.com/as
 * If an unexpected internal exception is thrown when handling a message
 * If the closeTimeout is reached and there are still open requests or streams. This error will contain info about what requests and streams are still open.
 
+*Rpep Connection Object Error codes*
+
+* **`unparsableCommand`** - Emitted when an unparsable message is received from the remote peer.
+* **`invalidCommandType`** - Emitted when an invalid command is received from the remote peer.
+* **`invalidStreamMessage`** - Emitted when an invalid stream message is received from the remote peer.
+
 #### Rpep Request Object
 
 An rpep request object is passed to the `listen` `requestHandler` callback. It is used to either accept or reject the connection. It has the following methods and properties:
@@ -269,6 +275,7 @@ How to submit pull requests:
 
 Change Log
 =========
+* 2.0.4 - Fixing bug where an error during (and before) connection was not properly funneled into the promise rejection. Also adding error codes.
 * 2.0.3 - Releasing security fixes and fixing a bug where sendCommandErrorInfo was defaulted to false instead of true.
 * 2.0.2 - Fixing bug where server streams didn't correctly display the stream command name in the case of pending streams after connection closure.
 * 2.0.1 - Fixing bug where emitted errors were silently ignored if no listeners were attached to an RPEP connection or server.
