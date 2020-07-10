@@ -13,7 +13,7 @@ var prod = build(name, false, {output: {path:buildDirectory}, header: copywrite,
 var dev = build(name, false, {output: {path:buildDirectory, name:name+'-dev.umd.js'}, header: copywrite, name:name, minify:false})
 
 exports.done = new Promise(function(resolve) {
-    var n = 0, bundles = [test]//,prod,dev]
+    var n = 0, bundles = [prod,dev]
 
     var check = function() {
         if(n === bundles.length) resolve()
