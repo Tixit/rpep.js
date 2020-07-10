@@ -164,6 +164,7 @@ module.exports = proto(EventEmitter, function() {
             var listening = false
             that.listener.onListening(function() {
                 listening = true
+                that.emit('listening')
                 resolve()
             })
             that.listener.onError(function(e) {
@@ -333,7 +334,7 @@ var RpepConnection = proto(EventEmitter, function() {
     this.close = function() {
         var that = this
         
-        if(this.connected) {
+        if(this.connected && !this.closing) {
             this.closing = true
             if(Object.keys(this.commandState).length === 0) {
                 closeInternal(this)
@@ -482,7 +483,7 @@ var RpepConnection = proto(EventEmitter, function() {
         that.connection.close()
         that.connection = undefined
     }
-    // checks if the connection is closing and if it is and it's a clean close, close it out
+    // If the connection is closing and it's a clean close, close it out.
     function checkCleanClose(that) {
         if(that.closing && Object.keys(that.commandState).length === 0) {
             closeInternal(that)

@@ -121,6 +121,10 @@ Using rpep:
 **`peer.rawHandle(handler)`** - Creates a `handler` that is called before the message is parsed by the `serialization` (which happens before `preHandle`).
 * `handler(rawMessage)` - The callback. The `rawMessage` is a unparsed rpep message in whatever format the configured `serialization` dictates. If the handler returns "ignore" the message will not trigger any `receive`, `respond`, `stream`, `default`, or `preHandle` handler.
 
+**`listening`** - Emitted when the listener has started listening.
+**`close`** - Emitted when the listener has been closed.
+**`error(e)`** - An error event is emitted from the connection if there is an error during listening.
+
 #### Rpep Connection Object
 
 An **Rpep Connection Object** is an [EventEmitter2 object](https://github.com/asyncly/EventEmitter2) that can emit events as well as call connection methods.
@@ -277,6 +281,7 @@ How to submit pull requests:
 
 Change Log
 =========
+* 2.1.0 - Adding 'listening' event and documenting Peer events. Also making it so closing a connection is idemopotent.
 * 2.0.4 - Fixing bug where an error during (and before) connection was not properly funneled into the promise rejection. Also adding error codes.
 * 2.0.3 - Releasing security fixes and fixing a bug where sendCommandErrorInfo was defaulted to false instead of true.
 * 2.0.2 - Fixing bug where server streams didn't correctly display the stream command name in the case of pending streams after connection closure.
