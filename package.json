@@ -3,6 +3,10 @@
   "version": "2.1.0",
   "main": "rpep.js",
   "description": "A javascript implementation of the RPEP protocol https://github.com/Tixit/RPEP",
+  "license": {
+    "name": "MIT",
+    "url": "http://www.opensource.org/licenses/mit-license.php"
+  },
   "keywords": [
     "rpc",
     "event",
