@@ -14,7 +14,7 @@ var msgpack = require("rpep-msgpack")
 
 // server
 
-var server = rpep(websockets, msgpack)
+var server = rpep(websockets(), msgpack)
 server.respond('x', function(request) {
     return request+1
 })
