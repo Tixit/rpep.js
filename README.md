@@ -34,7 +34,7 @@ server.listen(80, function(request) {
 // client (usually on a different machine ; )
 
 var client = rpep(websockets(), msgpack)
-r.connect('yourhost.me', 80).then(function(conn) {
+client.connect('yourhost.me', 80).then(function(conn) {
     conn.connectionInfo = "Some object"
     conn.request('x', 5).then(function(result) {
         console.log(result) // result will be 6
@@ -255,7 +255,8 @@ Known issues
 Todo
 ======
 
-* Separate the serializations and transports into thier own separate repositories
+* Make it clearer that errors from the peer are from the peer and weren't generated locally.
+* Make the stream end event easier to use. Probably create a function to send 'end' if it hasn't already been sent, so multiple end events aren't a problem.
 
 How to Contribute!
 ============
