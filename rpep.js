@@ -117,7 +117,8 @@ module.exports = proto(EventEmitter, function() {
                 resolve(rpepConn)
             })
 
-            var rpepConn = RpepConnection(that, connection, {isServer:false, onClose: function() {
+            var rpepConn = RpepConnection(that, connection, {isServer:false})
+            rpepConn.on('close', () => {
                 if(!onOpenCalled) {
                     var message = "Connection couldn't be opened"
                     if(errors.length > 0) {
@@ -128,7 +129,7 @@ module.exports = proto(EventEmitter, function() {
                     e.errors = errors
                     reject(e)
                 }
-            }})
+            })
 
             connection.onError(function(e) {
                 errors.push(e)
@@ -136,7 +137,8 @@ module.exports = proto(EventEmitter, function() {
         })
     }
 
-    // returns a future that resolves successfully when the server has begun listening and resolves to an error if listening couldn't be started
+    // Returns a future that resolves successfully when the server has begun listening and resolves to
+    // an error if listening couldn't be started.
     this.listen = function(/*variable number of listen parameters, requestHandler*/) {
         var args = Array.prototype.slice.call(arguments)
         var requestHandler = args[args.length-1]
@@ -266,7 +268,6 @@ var RpepConnection = proto(EventEmitter, function() {
 
     // connectionOptions
         // isServer - Should be true if the connection is being creatd by a server, false otherwise
-        // onClose - A function that will be called in the onClose event before the 'close' event is emitted
     this.init = function(rpepCoreObject, connectionObject, connectionOptions) {
         EventEmitter.call(this) // superclass constructor
 
@@ -301,32 +302,25 @@ var RpepConnection = proto(EventEmitter, function() {
         else
             this.nextId = 1
 
-        var that = this
-
+        const handleClose = () => {
+            this.connected = false
+            this.emit('close')
+        }
         if(this.connection.onClose) {
-            this.connection.onClose(function() {
-                if(connectionOptions.onClose)
-                    connectionOptions.onClose()
-
-                that.connected = false
-                that.emit('close')
-            })
+            this.connection.onClose(handleClose)
         } else {
-            this.on('closeMessage', function() {
-                that.connected = false
-                that.emit('close')
-            })
+            this.on('closeMessage', handleClose)
         }
 
-        this.connection.onMessage(function(rawMessage) {
-            handle(that, rawMessage)
+        this.connection.onMessage((rawMessage) => {
+            handle(this, rawMessage)
         })
         this.connection.onOpen(function() {
             connectionHasBeenOpened = true
         })
-        this.connection.onError(function(e) {
+        this.connection.onError(e => {
             if(connectionHasBeenOpened)
-                that.emit('error', e)
+                this.emit('error', e)
         })
     }
 
@@ -337,11 +331,11 @@ var RpepConnection = proto(EventEmitter, function() {
         if(this.connected && !this.closing) {
             this.closing = true
             if(Object.keys(this.commandState).length === 0) {
-                closeInternal(this)
+                closeInternal(this, false)
             } else {
                 this.closeTimeoutHandle = setTimeout(function() {
                     that.closeTimeoutHandle = undefined
-                    closeInternal(that)
+                    closeInternal(that, true)
                 },this.closeTimeout)
             }
         }
@@ -439,14 +433,15 @@ var RpepConnection = proto(EventEmitter, function() {
         return that.serialization.deserialize(serializedData)
     }
 
-    function closeInternal(that) {
+    function closeInternal(that, isAfterTimeout) {
         if(that.closeTimeoutHandle !== undefined) {
             clearTimeout(that.closeTimeoutHandle)
         }
 
         var ids = Object.keys(that.commandState)
         if(ids.length > 0) {
-            var errorMessage = "Connection has been closed after a "+that.closeTimeout+"ms timeout and some pending requests and streams remain unfulfilled. "+
+            var timeoutMessage = isAfterTimeout? "after a "+that.closeTimeout+"ms timeout " : ""
+            var errorMessage = "Connection has been closed "+timeoutMessage+"and some pending requests and streams remain unfulfilled. "+
                                 "The following requests and streams were still active up until the timeout:\n"
             
             var activeCommandStates = []
@@ -486,7 +481,7 @@ var RpepConnection = proto(EventEmitter, function() {
     // If the connection is closing and it's a clean close, close it out.
     function checkCleanClose(that) {
         if(that.closing && Object.keys(that.commandState).length === 0) {
-            closeInternal(that)
+            closeInternal(that, false)
         }
     }
 
